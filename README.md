@@ -6,6 +6,10 @@ A faux unix shell in the browser with a faux persistent file system.
 
 <br>
 
+https://github.com/user-attachments/assets/08a8334d-0ce1-45f4-9972-6e63263021e7
+
+<br>
+
 ## Requirements
 
 ```
