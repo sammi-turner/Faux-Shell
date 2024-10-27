@@ -1,0 +1,58 @@
+# Test pwd and initial state
+pwd                    # Should show ~
+
+# Test mkdir and ls
+mkdir Documents
+mkdir Downloads
+mkdir "My Files"       # Test with spaces
+ls                     # Should show all 3 directories with trailing slashes
+
+# Test cd navigation
+cd Documents
+pwd                    # Should show ~/Documents
+cd ..
+pwd                    # Should show ~
+cd Downloads
+cd ..
+cd "My Files"
+cd ..
+
+# Test absolute and relative paths
+cd /
+pwd                    # Should show /
+cd ~
+pwd                    # Should show ~
+cd /home
+pwd                    # Should show /home or ~
+
+# Test file creation and removal
+touch test.txt
+touch "my file.txt"    # Test with spaces
+ls                     # Should show directories and the new files
+rm test.txt
+ls                     # test.txt should be gone
+rm "my file.txt"
+ls                     # Should only show directories now
+
+# Test recursive directory removal
+mkdir temp
+cd temp
+touch inside.txt
+cd ..
+rm temp               # Should fail (directory not empty)
+rm -r temp           # Should succeed
+ls                   # temp should be gone
+
+# Test complex scenarios
+mkdir projects
+cd projects
+mkdir web
+cd web
+touch index.html
+touch style.css
+ls                   # Should show the two files
+cd ..
+rm -r web           # Should remove web and its contents
+ls                  # web should be gone
+cd ..
+pwd                 # Should show ~
