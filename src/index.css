@@ -3,12 +3,44 @@
 @tailwind utilities;
 
 :root {
-    font-family: Consolas, Monaco, 'Courier New', monospace;
-    line-height: 1.5;
-    font-weight: 400;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  line-height: 1.5;
+  font-weight: 400;
+}
+  
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+@-moz-document url-prefix() {
+  input[type="text"] {
+    caret-color: #ffffff;
+    color: #ffffff;
+    opacity: 1;
+    appearance: none;
+    -moz-appearance: none;
+    background-color: transparent;
   }
   
-  body {
-    margin: 0;
-    min-height: 100vh;
+  input[type="text"]::selection {
+    background-color: rgba(255, 255, 255, 0.3);
   }
+
+  /* Add styles for the prompt and output text */
+  .text-terminal-prompt {
+    color: #00ff00;
+    opacity: 1;
+  }
+
+  .text-terminal-text {
+    color: #ffffff;
+    opacity: 1;
+  }
+
+  /* For the command output */
+  .whitespace-pre-wrap {
+    color: #ffffff;
+    opacity: 1;
+  }
+}
