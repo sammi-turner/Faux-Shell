@@ -15,36 +15,62 @@ const Terminal = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
 
   const handleCommand = (commandLine: string) => {
-    const args = commandLine.trim().split(' ');
-    const cmdName = args[0].toLowerCase();
+    // Parse command line respecting quotes
+    const args: string[] = [];
+    let current = '';
+    let inQuotes = false;
 
-    if (!cmdName) return;
-
-    const command = commandRegistry.getCommand(cmdName);
-    let result;
-
-    if (command) {
-      result = command.execute(args.slice(1), fs);
+    for (let i = 0; i < commandLine.length; i++) {
+      const char = commandLine[i];
       
-      // Handle special case for clear command
+      if (char === '"' && (i === 0 || commandLine[i - 1] !== '\\')) {
+        inQuotes = !inQuotes;
+      } else if (char === ' ' && !inQuotes) {
+        if (current) {
+          args.push(current);
+          current = '';
+        }
+      } else {
+        current += char;
+      }
+    }
+    
+    if (current) {
+      args.push(current);
+    }
+
+    // Remove quotes from arguments
+    const cleanArgs = args.map(arg => arg.replace(/^"(.*)"$/, '$1'));
+    
+    if (cleanArgs.length === 0) return;
+
+    const cmd = cleanArgs[0].toLowerCase();
+    const command = commandRegistry.getCommand(cmd);
+    
+    if (command) {
+      const result = command.execute(cleanArgs.slice(1), fs);
+      
       if (result.output === 'CLEAR_TERMINAL') {
         setHistory([]);
         return;
       }
-    } else {
-      result = {
-        success: false,
-        output: `Command not found: ${cmdName}. Type 'help' for available commands.`
+
+      const newHistoryItem: TerminalHistory = {
+        command: commandLine,
+        output: result.output,
+        timestamp: Date.now()
       };
+
+      setHistory(prev => [...prev, newHistoryItem]);
+    } else {
+      const newHistoryItem: TerminalHistory = {
+        command: commandLine,
+        output: `Command not found: ${cmd}`,
+        timestamp: Date.now()
+      };
+
+      setHistory(prev => [...prev, newHistoryItem]);
     }
-
-    const newHistoryItem: TerminalHistory = {
-      command: commandLine,
-      output: result.output,
-      timestamp: Date.now()
-    };
-
-    setHistory(prev => [...prev, newHistoryItem]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

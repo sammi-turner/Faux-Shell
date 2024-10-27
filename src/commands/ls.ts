@@ -8,7 +8,13 @@ export const ls: Command = {
   execute: (_args: string[], fs: FileSystemService): CommandResult => {
     try {
       const contents = fs.getCurrentDirectory().children
-        ?.map(node => `${node.name}${node.type === 'directory' ? '/' : ''}`)
+        ?.map(node => {
+          if (node.type === 'directory') {
+            return `${node.name}/`;
+          }
+          return node.name;
+        })
+        .sort((a, b) => a.localeCompare(b))
         .join('\n');
       
       return {

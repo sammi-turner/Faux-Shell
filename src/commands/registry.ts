@@ -5,6 +5,8 @@ import { pwd } from './pwd';
 import { cd } from './cd';
 import { mkdir } from './mkdir';
 import { help } from './help';
+import { touch } from './touch';
+import { rm } from './rm';
 
 class CommandRegistry {
   private commands: Map<string, Command>;
@@ -15,7 +17,7 @@ class CommandRegistry {
   }
 
   private registerDefaultCommands(): void {
-    [ls, clear, pwd, cd, mkdir, help].forEach(command => {
+    [ls, clear, pwd, cd, mkdir, help, touch, rm].forEach(command => {
       this.registerCommand(command);
     });
   }

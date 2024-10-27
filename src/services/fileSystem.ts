@@ -159,4 +159,41 @@ export class FileSystemService {
     current.children?.push(newDir);
     this.saveFS();
   }
+
+  public createFile(name: string, content: string = ''): void {
+    const current = this.getCurrentDirectory();
+    
+    if (current.children?.some(node => node.name === name)) {
+      throw new Error(`File already exists: ${name}`);
+    }
+
+    const newFile: FileSystemNode = {
+      name,
+      type: 'file',
+      content,
+      createdAt: Date.now(),
+      modifiedAt: Date.now()
+    };
+
+    current.children?.push(newFile);
+    this.saveFS();
+  }
+
+  public removeNode(name: string, recursive: boolean = false): void {
+    const current = this.getCurrentDirectory();
+    const nodeIndex = current.children?.findIndex(node => node.name === name);
+
+    if (nodeIndex === undefined || nodeIndex === -1) {
+      throw new Error(`No such file or directory: ${name}`);
+    }
+
+    const node = current.children![nodeIndex];
+    
+    if (node.type === 'directory' && node.children?.length && !recursive) {
+      throw new Error(`Directory not empty: ${name}`);
+    }
+
+    current.children?.splice(nodeIndex, 1);
+    this.saveFS();
+  }
 }
