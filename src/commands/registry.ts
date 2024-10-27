@@ -1,6 +1,10 @@
 import { Command } from './types';
 import { ls } from './ls';
 import { clear } from './clear';
+import { pwd } from './pwd';
+import { cd } from './cd';
+import { mkdir } from './mkdir';
+import { help } from './help';
 
 class CommandRegistry {
   private commands: Map<string, Command>;
@@ -11,8 +15,9 @@ class CommandRegistry {
   }
 
   private registerDefaultCommands(): void {
-    this.registerCommand(ls);
-    this.registerCommand(clear);
+    [ls, clear, pwd, cd, mkdir, help].forEach(command => {
+      this.registerCommand(command);
+    });
   }
 
   public registerCommand(command: Command): void {
