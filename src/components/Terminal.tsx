@@ -1,41 +1,53 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FileSystemService } from '../services/fileSystem';
-import { TerminalHistory } from '../types';
+import { commandRegistry } from '../commands/registry';
 
-const Terminal: React.FC = () => {
+interface TerminalHistory {
+  command: string;
+  output: string;
+  timestamp: number;
+}
+
+const Terminal = () => {
   const [input, setInput] = useState<string>('');
   const [history, setHistory] = useState<TerminalHistory[]>([]);
   const [fs] = useState(new FileSystemService());
   const terminalRef = useRef<HTMLDivElement>(null);
 
-  const handleCommand = (command: string) => {
-    const args = command.trim().split(' ');
-    const cmd = args[0].toLowerCase();
-    let output = '';
+  const handleCommand = (commandLine: string) => {
+    const args = commandLine.trim().split(' ');
+    const cmdName = args[0].toLowerCase();
 
-    switch (cmd) {
-      case 'ls':
-        output = fs.getCurrentDirectory().children
-          ?.map(node => node.name)
-          .join('\n') || 'Directory is empty';
-        break;
-      case 'clear':
+    if (!cmdName) return;
+
+    const command = commandRegistry.getCommand(cmdName);
+    let result;
+
+    if (command) {
+      result = command.execute(args.slice(1), fs);
+      
+      // Handle special case for clear command
+      if (result.output === 'CLEAR_TERMINAL') {
         setHistory([]);
         return;
-      default:
-        output = `Command not found: ${cmd}`;
+      }
+    } else {
+      result = {
+        success: false,
+        output: `Command not found: ${cmdName}. Type 'help' for available commands.`
+      };
     }
 
     const newHistoryItem: TerminalHistory = {
-      command,
-      output,
+      command: commandLine,
+      output: result.output,
       timestamp: Date.now()
     };
 
     setHistory(prev => [...prev, newHistoryItem]);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleCommand(input);
@@ -82,7 +94,7 @@ const Terminal: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 ml-2 bg-transparent outline-none"
+              className="flex-1 ml-2 bg-transparent outline-none text-terminal-text"
               autoFocus
             />
           </div>
