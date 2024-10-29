@@ -196,4 +196,56 @@ export class FileSystemService {
     current.children?.splice(nodeIndex, 1);
     this.saveFS();
   }
+
+  public renameNode(oldName: string, newName: string): void {
+    const current = this.getCurrentDirectory();
+    const sourceIndex = current.children?.findIndex(node => node.name === oldName);
+    
+    if (sourceIndex === undefined || sourceIndex === -1) {
+      throw new Error(`No such file or directory: ${oldName}`);
+    }
+  
+    if (current.children?.some(node => node.name === newName)) {
+      throw new Error(`File or directory already exists: ${newName}`);
+    }
+  
+    const node = current.children![sourceIndex];
+    node.name = newName;
+    node.modifiedAt = Date.now();
+    this.saveFS();
+  }
+
+  public writeFile(name: string, content: string): void {
+    const current = this.getCurrentDirectory();
+    const existingFile = current.children?.find(node => 
+      node.name === name && node.type === 'file'
+    );
+    
+    if (existingFile) {
+      // Update existing file
+      existingFile.content = content;
+      existingFile.modifiedAt = Date.now();
+    } else {
+      // Create new file
+      this.createFile(name, content);
+    }
+    this.saveFS();
+  }
+
+  public appendToFile(name: string, content: string): void {
+    const current = this.getCurrentDirectory();
+    const existingFile = current.children?.find(node => 
+      node.name === name && node.type === 'file'
+    );
+    
+    if (existingFile) {
+      // Append to existing file
+      existingFile.content = (existingFile.content || '') + content;
+      existingFile.modifiedAt = Date.now();
+    } else {
+      // Create new file if it doesn't exist
+      this.createFile(name, content);
+    }
+    this.saveFS();
+  }
 }

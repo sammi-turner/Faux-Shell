@@ -7,6 +7,9 @@ import { mkdir } from './mkdir';
 import { help } from './help';
 import { touch } from './touch';
 import { rm } from './rm';
+import { cat } from './cat';
+import { echo } from './echo';
+import { mv } from './mv';
 
 class CommandRegistry {
   private commands: Map<string, Command>;
@@ -17,7 +20,7 @@ class CommandRegistry {
   }
 
   private registerDefaultCommands(): void {
-    [ls, clear, pwd, cd, mkdir, help, touch, rm].forEach(command => {
+    [ls, clear, pwd, cd, mkdir, help, touch, rm, cat, echo, mv].forEach(command => {
       this.registerCommand(command);
     });
   }
